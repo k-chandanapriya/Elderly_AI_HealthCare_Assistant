@@ -1,8 +1,8 @@
 """
-Configuration settings
+Configuration settings - For Custom Tuned Vertex AI Model
 """
 from pydantic_settings import BaseSettings
-from typing import List
+from typing import List, Optional
 
 
 class Settings(BaseSettings):
@@ -13,11 +13,20 @@ class Settings(BaseSettings):
     VERSION: str = "1.0.0"
     ENVIRONMENT: str = "development"
     
-    # Google Cloud / Vertex AI
-    GOOGLE_CLOUD_PROJECT: str
-    GOOGLE_APPLICATION_CREDENTIALS: str
-    VERTEX_AI_LOCATION: str = "us-central1"
-    VERTEX_AI_MODEL: str = "gemini-pro"
+    # Google Cloud / Vertex AI - Tuned Model
+    GOOGLE_CLOUD_PROJECT: str  # Your project ID
+    # Service account JSON key path (optional). Set this to use a key file instead of gcloud login.
+    GOOGLE_APPLICATION_CREDENTIALS: Optional[str] = None  # e.g. /path/to/service-account-key.json
+    GOOGLE_API_KEY: Optional[str] = None  # Not used for Vertex AI; kept for optional use
+    
+    # Vertex AI Settings
+    VERTEX_AI_LOCATION: str = "europe-west4"  # Your model's region
+    VERTEX_AI_MODEL: str = "gemini-2.5-flash"  # Base model
+    
+    # Your Tuned Model Endpoint ID (extract from model name)
+    # From: projects/82533503826/locations/europe-west4/models/6026891623793688576@1
+    VERTEX_AI_TUNED_ENDPOINT_ID: Optional[str] = None  # Deployed endpoint ID (if model is deployed)
+    VERTEX_AI_TUNED_MODEL_ID: Optional[str] = None  # Tuned model ID (e.g. 6026891623793688576@1)
     
     # CORS
     CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:5173"]
