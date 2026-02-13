@@ -1,5 +1,4 @@
-import base64
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Dict, Optional
@@ -14,16 +13,6 @@ except Exception as e:
     chatbot = None
     USE_VERTEX_AI = False
     print(f"Vertex AI not loaded (missing .env?): {e}. Using echo for chat.")
-
-try:
-    from services.text_to_speech import tts_service
-    USE_TTS = True
-    TTS_LOAD_ERROR = None
-except Exception as e:
-    tts_service = None
-    USE_TTS = False
-    TTS_LOAD_ERROR = str(e)
-    print(f"TTS service not loaded: {e}")
 
 app = FastAPI(title="Elderly Healthcare Assistant")
 
@@ -47,32 +36,6 @@ class ChatMessageRequest(BaseModel):
     message: str
     session_id: Optional[str] = None
     language: Optional[str] = "en"
-
-
-class TextToSpeechRequest(BaseModel):
-    text: str
-    language_code: Optional[str] = "en-US"
-    voice_name: Optional[str] = None
-
-
-def _get_tts_service():
-    """
-    Lazy-load TTS service so backend can recover after dependency/env fixes.
-    """
-    global tts_service, USE_TTS, TTS_LOAD_ERROR
-    if USE_TTS and tts_service:
-        return tts_service
-
-    try:
-        from services.text_to_speech import tts_service as loaded_tts_service
-        tts_service = loaded_tts_service
-        USE_TTS = True
-        TTS_LOAD_ERROR = None
-        return tts_service
-    except Exception as error:
-        USE_TTS = False
-        TTS_LOAD_ERROR = str(error)
-        return None
 
 
 @app.get("/")
@@ -116,42 +79,6 @@ async def clear_session(
     if USE_VERTEX_AI and chatbot:
         chatbot.clear_session(session_id)
     return {"status": "cleared"}
-
-
-@app.post("/api/tts/speak")
-async def text_to_speech(
-    request: TextToSpeechRequest,
-    current_user: str = Depends(get_current_user_identity),
-) -> Dict[str, str]:
-    _ = current_user
-    service = _get_tts_service()
-    if not service:
-        raise HTTPException(
-            status_code=503,
-            detail=(
-                "Text-to-speech service is not configured on the backend. "
-                f"Reason: {TTS_LOAD_ERROR or 'Unknown error'}"
-            ),
-        )
-
-    try:
-        audio_content = service.synthesize_speech(
-            text=request.text,
-            language_code=request.language_code or "en-US",
-            voice_name=request.voice_name,
-        )
-        audio_base64 = base64.b64encode(audio_content).decode("utf-8")
-        return {
-            "audio_base64": audio_base64,
-            "mime_type": "audio/mpeg",
-        }
-    except ValueError as error:
-        raise HTTPException(status_code=400, detail=str(error)) from error
-    except Exception as error:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to synthesize speech: {error}",
-        ) from error
 
 
 @app.post("/chat")

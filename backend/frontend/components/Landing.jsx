@@ -5,7 +5,7 @@
 import { useRef } from 'react';
 import Hero from './Hero';
 import ValueProps from './ValueProps';
-import Chat from '../Chatbot/Chat';
+import Chat from './Chat';
 import Footer from './Footer';
 
 const Landing = () => {
