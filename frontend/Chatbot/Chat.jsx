@@ -6,7 +6,6 @@ import { Send, Bot, User, Trash2, Sparkles, Volume2, Pause, Play, Square } from 
 import { chatAPI } from '../services/api';
 import {
   LANGUAGE_OPTIONS,
-  VOICE_OPTIONS,
   formatAudioTime,
   useTextToSpeech,
 } from './Text-to-speech';
@@ -15,20 +14,20 @@ const Chat = ({ embedded = false }) => {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: 'Hello! I\'m your AI healthcare assistant powered by Google Vertex AI. I\'m here to help with your health questions, medication reminders, and wellness tips. How can I assist you today?',
+      content: 'Hello! I\'m MIA, your elderly care assistant. I can help with medications, appointments, exercises, and daily wellness. What would you like help with today?',
       timestamp: new Date().toISOString()
     }
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
+  const [speechEnabled, setSpeechEnabled] = useState(true);
   const {
     speakingMessageIndex,
     audioCurrentTime,
     audioDuration,
     isAudioPaused,
     selectedLanguageCode,
-    selectedVoiceName,
     autoPlayReplies,
     playbackRate,
     setSelectedLanguageCode,
@@ -40,6 +39,12 @@ const Chat = ({ embedded = false }) => {
     seekAudio,
     stopCurrentAudio,
   } = useTextToSpeech();
+
+  const handleLanguageChange = (event) => {
+    const nextLanguage = event.target.value;
+    setSelectedLanguageCode(nextLanguage);
+    setSelectedVoiceName('');
+  };
 
   // Auto-scroll to bottom
   const scrollToBottom = () => {
@@ -85,7 +90,7 @@ const Chat = ({ embedded = false }) => {
         return [...prev, aiMessage];
       });
 
-      if (autoPlayReplies && newAssistantIndex !== null) {
+      if (speechEnabled && autoPlayReplies && newAssistantIndex !== null) {
         await speakMessage(aiMessage.content, newAssistantIndex);
       }
     } catch (error) {
@@ -112,7 +117,7 @@ const Chat = ({ embedded = false }) => {
         await chatAPI.clearSession();
         setMessages([{
           role: 'assistant',
-          content: 'New conversation started! How can I help you today?',
+          content: 'New conversation started. I\'m here for your medications, appointments, and health questions. How can I help you?',
           timestamp: new Date().toISOString()
         }]);
       } catch (error) {
@@ -122,7 +127,7 @@ const Chat = ({ embedded = false }) => {
   };
 
   const containerClass = embedded
-    ? "flex flex-col min-h-[520px] max-h-[75vh] rounded-2xl border border-secondary bg-white shadow-xl overflow-hidden"
+    ? "flex flex-col min-h-[680px] max-h-[85vh] rounded-2xl border border-secondary bg-white shadow-xl overflow-hidden"
     : "flex flex-col h-screen bg-gradient-to-b from-surface to-secondary/30";
 
   return (
@@ -150,63 +155,63 @@ const Chat = ({ embedded = false }) => {
             New Chat
           </button>
         </div>
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-3">
+        <div className="mt-4 flex flex-wrap items-center gap-3">
           <label className="flex flex-col text-xs text-textmain/80">
             Language
             <select
               value={selectedLanguageCode}
-              onChange={(event) => {
-                const nextLanguage = event.target.value;
-                setSelectedLanguageCode(nextLanguage);
-                setSelectedVoiceName('');
-              }}
-              className="mt-1 px-3 py-2 rounded-lg border border-secondary text-sm"
+              onChange={handleLanguageChange}
+              className="mt-1 px-3 py-2 rounded-xl border border-secondary text-sm bg-white flex items-center gap-2 min-w-[180px]"
             >
               {LANGUAGE_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
-                  {option.label}
+                  {option.flag} {option.label}
                 </option>
               ))}
             </select>
           </label>
 
-          <label className="flex flex-col text-xs text-textmain/80">
-            Voice
-            <select
-              value={selectedVoiceName}
-              onChange={(event) => setSelectedVoiceName(event.target.value)}
-              className="mt-1 px-3 py-2 rounded-lg border border-secondary text-sm"
-            >
-              {(VOICE_OPTIONS[selectedLanguageCode] || VOICE_OPTIONS['en-US']).map((option) => (
-                <option key={option.value || 'default'} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
+          <button
+            type="button"
+            onClick={() => setSpeechEnabled((on) => !on)}
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-medium transition-colors ${
+              speechEnabled
+                ? 'border-primary bg-primary text-white'
+                : 'border-secondary bg-white text-textmain/70 hover:bg-secondary/30'
+            }`}
+            title={speechEnabled ? 'Speech on – click to turn off' : 'Speech off – click to turn on'}
+          >
+            <Volume2 size={18} />
+            Speech {speechEnabled ? 'On' : 'Off'}
+          </button>
 
-          <label className="flex flex-col text-xs text-textmain/80">
-            Speed
-            <input
-              type="range"
-              min="0.75"
-              max="1.5"
-              step="0.05"
-              value={playbackRate}
-              onChange={(event) => setPlaybackRate(Number(event.target.value))}
-              className="mt-2"
-            />
-            <span className="text-[11px] mt-1">{playbackRate.toFixed(2)}x</span>
-          </label>
-
-          <label className="flex items-center gap-2 text-xs text-textmain/80 mt-5 md:mt-0">
-            <input
-              type="checkbox"
-              checked={autoPlayReplies}
-              onChange={(event) => setAutoPlayReplies(event.target.checked)}
-            />
-            Autoplay assistant replies
-          </label>
+          {speechEnabled && (
+            <>
+              <label className="flex flex-col text-xs text-textmain/80">
+                Speed
+                <div className="flex items-center gap-2 mt-1">
+                  <input
+                    type="range"
+                    min="0.75"
+                    max="1.5"
+                    step="0.05"
+                    value={playbackRate}
+                    onChange={(event) => setPlaybackRate(Number(event.target.value))}
+                    className="w-24"
+                  />
+                  <span className="text-[11px]">{playbackRate.toFixed(2)}x</span>
+                </div>
+              </label>
+              <label className="flex items-center gap-2 text-xs text-textmain/80">
+                <input
+                  type="checkbox"
+                  checked={autoPlayReplies}
+                  onChange={(event) => setAutoPlayReplies(event.target.checked)}
+                />
+                Autoplay assistant replies
+              </label>
+            </>
+          )}
         </div>
 
         {speakingMessageIndex !== null && (
@@ -248,7 +253,7 @@ const Chat = ({ embedded = false }) => {
       </div>
 
       {/* Messages Container */}
-      <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4">
+      <div className="flex-1 min-h-[320px] overflow-y-auto px-4 py-6 pb-40 space-y-4">
         {messages.map((msg, index) => (
           <div
             key={index}
@@ -285,9 +290,10 @@ const Chat = ({ embedded = false }) => {
                 {msg.role === 'assistant' && !msg.isError && (
                   <button
                     type="button"
-                    onClick={() => speakMessage(msg.content, index)}
-                    className="text-xs opacity-80 hover:opacity-100 flex items-center gap-1"
-                    title="Play voice response"
+                    onClick={() => speechEnabled && speakMessage(msg.content, index)}
+                    disabled={!speechEnabled}
+                    className={`text-xs flex items-center gap-1 ${speechEnabled ? 'opacity-80 hover:opacity-100' : 'opacity-50 cursor-not-allowed'}`}
+                    title={speechEnabled ? 'Play voice response' : 'Turn Speech on to listen'}
                   >
                     <Volume2 size={12} />
                     {speakingMessageIndex === index ? (isAudioPaused ? 'Paused' : 'Playing...') : 'Speak'}
@@ -320,7 +326,9 @@ const Chat = ({ embedded = false }) => {
             </div>
           </div>
         )}
-        
+
+        {/* Empty space for next conversation */}
+        <div className="h-48 flex-shrink-0" aria-hidden="true" />
         <div ref={messagesEndRef} />
       </div>
 

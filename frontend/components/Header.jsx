@@ -2,8 +2,8 @@ import { Heart } from 'lucide-react';
 
 const Header = ({ onTryIt }) => {
   return (
-    <header className="absolute top-0 inset-x-0 z-30 bg-[#6d28d9] border-b border-white/15">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 sm:py-5 flex items-center justify-between">
+    <header className="absolute top-0 inset-x-0 z-30 bg-[#6d28d9] border-b border-white/15 pt-4 sm:pt-5">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 pb-4 sm:pb-5 flex items-center justify-between">
         <div className="flex items-center gap-6 md:gap-8">
           <a href="/" className="flex items-center gap-2 text-white no-underline">
             <div className="w-9 h-9 rounded-xl bg-white/10 border border-white/25 backdrop-blur flex items-center justify-center shadow-md">

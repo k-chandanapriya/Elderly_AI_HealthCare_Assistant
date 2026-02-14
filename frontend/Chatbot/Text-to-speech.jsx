@@ -2,12 +2,12 @@ import { useEffect, useRef, useState } from 'react';
 import { textToSpeechAPI } from '../services/textToSpeech';
 
 export const LANGUAGE_OPTIONS = [
-  { label: 'English (US)', value: 'en-US' },
-  { label: 'English (UK)', value: 'en-GB' },
-  { label: 'Hindi (India)', value: 'hi-IN' },
-  { label: 'German (Germany)', value: 'de-DE' },
-  { label: 'Spanish (Spain)', value: 'es-ES' },
-  { label: 'French (France)', value: 'fr-FR' },
+  { label: 'English (US)', value: 'en-US', flag: '🇺🇸' },
+  { label: 'English (UK)', value: 'en-GB', flag: '🇬🇧' },
+  { label: 'Hindi (India)', value: 'hi-IN', flag: '🇮🇳' },
+  { label: 'German (Germany)', value: 'de-DE', flag: '🇩🇪' },
+  { label: 'Spanish (Spain)', value: 'es-ES', flag: '🇪🇸' },
+  { label: 'French (France)', value: 'fr-FR', flag: '🇫🇷' },
 ];
 
 export const VOICE_OPTIONS = {
