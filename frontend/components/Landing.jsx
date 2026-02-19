@@ -4,7 +4,6 @@
  */
 import { useRef } from 'react';
 import Hero from './Hero';
-import ValueProps from './ValueProps';
 import Chat from '../Chatbot/Chat';
 import Footer from './Footer';
 
@@ -19,7 +18,6 @@ const Landing = () => {
     <div className="min-h-screen flex flex-col bg-surface">
       <main className="flex-1">
         <Hero onStartChat={scrollToChat} />
-        <ValueProps />
         {/* Chat section - "Meet your assistant" style */}
         <section
           id="chat"

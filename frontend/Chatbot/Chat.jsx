@@ -2,7 +2,7 @@
  * Chat Component - AI-Powered Healthcare Assistant
  */
 import { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Trash2, Sparkles, Volume2, Pause, Play, Square } from 'lucide-react';
+import { Send, Bot, User, Trash2, Volume2, Pause, Play, Square } from 'lucide-react';
 import { chatAPI } from '../services/api';
 import {
   LANGUAGE_OPTIONS,
@@ -127,41 +127,40 @@ const Chat = ({ embedded = false }) => {
   };
 
   const containerClass = embedded
-    ? "flex flex-col min-h-[680px] max-h-[85vh] rounded-2xl border border-secondary bg-white shadow-xl overflow-hidden"
-    : "flex flex-col h-screen bg-gradient-to-b from-surface to-secondary/30";
+    ? "flex flex-col min-h-[680px] max-h-[85vh] rounded-2xl border border-gray-200/80 bg-white shadow-lg overflow-hidden"
+    : "flex flex-col h-screen bg-gray-50";
 
   return (
     <div className={containerClass}>
-      {/* Header */}
-      <div className="bg-white shadow-sm px-6 py-4 border-b border-secondary">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <Bot size={embedded ? 28 : 36} className="text-primary" />
-              <Sparkles size={embedded ? 12 : 16} className="text-secondary absolute -top-1 -right-1" />
-            </div>
-            <div>
-              <h1 className={embedded ? "text-lg font-bold text-textmain" : "text-2xl font-bold text-textmain"}>
-                AI Healthcare Assistant
-              </h1>
-              <p className="text-sm text-textmain/70">Powered by Vertex AI</p>
-            </div>
+      {/* Header - minimal */}
+      <div className="bg-white px-5 py-3 border-b border-gray-100 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Bot size={20} className="text-primary" />
           </div>
-          <button
-            onClick={handleClearChat}
-            className="flex items-center gap-2 px-4 py-2 text-sm text-textmain/70 hover:text-accent hover:bg-secondary/40 rounded-lg transition-colors"
-          >
-            <Trash2 size={18} />
-            New Chat
-          </button>
+          <div>
+            <h1 className={embedded ? "text-base font-semibold text-gray-900" : "text-lg font-semibold text-gray-900"}>
+              MIA — Elderly Care AI
+            </h1>
+            <p className="text-xs text-gray-500">Powered by Vertex AI</p>
+          </div>
         </div>
-        <div className="mt-4 flex flex-wrap items-center gap-3">
-          <label className="flex flex-col text-xs text-textmain/80">
-            Language
+        <button
+          onClick={handleClearChat}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 hover:text-primary hover:bg-primary/5 rounded-lg transition-colors"
+        >
+          <Trash2 size={16} />
+          New chat
+        </button>
+      </div>
+      <div className="px-6 py-4 border-b border-gray-100 bg-white">
+        <div className="flex flex-wrap items-center gap-8">
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-medium text-gray-500 whitespace-nowrap">Language</span>
             <select
               value={selectedLanguageCode}
               onChange={handleLanguageChange}
-              className="mt-1 px-3 py-2 rounded-xl border border-secondary text-sm bg-white flex items-center gap-2 min-w-[180px]"
+              className="h-9 pl-3 pr-9 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white min-w-[160px] transition-colors"
             >
               {LANGUAGE_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -169,53 +168,52 @@ const Chat = ({ embedded = false }) => {
                 </option>
               ))}
             </select>
-          </label>
-
+          </div>
           <button
             type="button"
             onClick={() => setSpeechEnabled((on) => !on)}
-            className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-medium transition-colors ${
+            className={`h-9 inline-flex items-center gap-2 px-4 rounded-lg text-sm font-medium transition-all ${
               speechEnabled
-                ? 'border-primary bg-primary text-white'
-                : 'border-secondary bg-white text-textmain/70 hover:bg-secondary/30'
+                ? 'bg-primary text-white shadow-sm'
+                : 'bg-gray-50 border border-gray-200 text-gray-600 hover:bg-gray-100 hover:border-gray-300'
             }`}
-            title={speechEnabled ? 'Speech on – click to turn off' : 'Speech off – click to turn on'}
           >
-            <Volume2 size={18} />
+            <Volume2 size={17} />
             Speech {speechEnabled ? 'On' : 'Off'}
           </button>
-
           {speechEnabled && (
             <>
-              <label className="flex flex-col text-xs text-textmain/80">
-                Speed
-                <div className="flex items-center gap-2 mt-1">
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-medium text-gray-500 whitespace-nowrap">Speed</span>
+                <div className="flex items-center gap-3">
                   <input
                     type="range"
                     min="0.75"
                     max="1.5"
                     step="0.05"
                     value={playbackRate}
-                    onChange={(event) => setPlaybackRate(Number(event.target.value))}
-                    className="w-24"
+                    onChange={(e) => setPlaybackRate(Number(e.target.value))}
+                    className="w-20 h-2 accent-primary"
                   />
-                  <span className="text-[11px]">{playbackRate.toFixed(2)}x</span>
+                  <span className="text-sm font-medium text-gray-700 min-w-[3rem] tabular-nums">{playbackRate.toFixed(2)}x</span>
                 </div>
-              </label>
-              <label className="flex items-center gap-2 text-xs text-textmain/80">
+              </div>
+              <label className="flex items-center gap-2.5 cursor-pointer py-1">
                 <input
                   type="checkbox"
                   checked={autoPlayReplies}
-                  onChange={(event) => setAutoPlayReplies(event.target.checked)}
+                  onChange={(e) => setAutoPlayReplies(e.target.checked)}
+                  className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-2 focus:ring-primary/20"
                 />
-                Autoplay assistant replies
+                <span className="text-sm text-gray-700">Autoplay</span>
               </label>
             </>
           )}
         </div>
+      </div>
 
         {speakingMessageIndex !== null && (
-          <div className="mt-3 p-3 rounded-lg border border-secondary bg-secondary/20">
+          <div className="mx-5 mt-3 p-3 rounded-lg border border-gray-200 bg-gray-50">
             <div className="flex items-center gap-3 mb-2">
               <button
                 type="button"
@@ -250,61 +248,54 @@ const Chat = ({ embedded = false }) => {
             </div>
           </div>
         )}
-      </div>
 
       {/* Messages Container */}
-      <div className="flex-1 min-h-[320px] overflow-y-auto px-4 py-6 pb-40 space-y-4">
+      <div className="flex-1 min-h-[320px] overflow-y-auto px-6 py-6 pb-32 bg-white">
+        <div className="max-w-3xl mx-auto space-y-6">
         {messages.map((msg, index) => (
           <div
             key={index}
             className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             {msg.role === 'assistant' && (
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-purple-700 flex items-center justify-center flex-shrink-0 shadow-md">
-                <Bot size={22} className="text-white" />
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <Bot size={16} className="text-primary" />
               </div>
             )}
             
             <div
-              className={`max-w-2xl px-6 py-4 rounded-2xl shadow-md ${
+              className={`max-w-[85%] px-4 py-3 rounded-2xl ${
                 msg.role === 'user'
-                  ? 'bg-gradient-to-r from-primary to-purple-700 text-surface'
+                  ? 'bg-primary text-white rounded-br-md'
                   : msg.isError
-                  ? 'bg-red-50 text-red-800 border border-red-200'
-                  : 'bg-white text-textmain'
+                  ? 'bg-red-50 text-red-700 border border-red-100'
+                  : 'bg-gray-100 text-gray-900 rounded-bl-md'
               }`}
             >
-              <p className="text-lg whitespace-pre-wrap leading-relaxed">
+              <p className="text-[15px] leading-relaxed whitespace-pre-wrap">
                 {msg.content}
               </p>
-              <div className="flex items-center justify-between mt-2">
-                <span className="text-xs opacity-70">
+              <div className={`flex items-center justify-between gap-3 mt-2 pt-2 ${msg.role === 'user' ? 'border-t border-white/20' : 'border-t border-gray-200/60'}`}>
+                <span className="text-[11px] opacity-70">
                   {new Date(msg.timestamp).toLocaleTimeString()}
                 </span>
-                {msg.model && (
-                  <span className="text-xs opacity-70 flex items-center gap-1">
-                    <Sparkles size={12} />
-                    AI
-                  </span>
-                )}
                 {msg.role === 'assistant' && !msg.isError && (
                   <button
                     type="button"
                     onClick={() => speechEnabled && speakMessage(msg.content, index)}
                     disabled={!speechEnabled}
-                    className={`text-xs flex items-center gap-1 ${speechEnabled ? 'opacity-80 hover:opacity-100' : 'opacity-50 cursor-not-allowed'}`}
-                    title={speechEnabled ? 'Play voice response' : 'Turn Speech on to listen'}
+                    className={`text-[11px] flex items-center gap-1 ${speechEnabled ? 'text-gray-600 hover:text-primary' : 'text-gray-400 cursor-not-allowed'}`}
                   >
                     <Volume2 size={12} />
-                    {speakingMessageIndex === index ? (isAudioPaused ? 'Paused' : 'Playing...') : 'Speak'}
+                    {speakingMessageIndex === index ? (isAudioPaused ? 'Paused' : 'Playing') : 'Speak'}
                   </button>
                 )}
               </div>
             </div>
 
             {msg.role === 'user' && (
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-secondary to-accent flex items-center justify-center flex-shrink-0 shadow-lg">
-                <User size={28} className="text-white" />
+              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <User size={16} className="text-primary" />
               </div>
             )}
           </div>
@@ -313,49 +304,44 @@ const Chat = ({ embedded = false }) => {
         {/* Loading Indicator */}
         {isLoading && (
           <div className="flex gap-3 justify-start">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-purple-700 flex items-center justify-center shadow-md">
-              <Bot size={22} className="text-white" />
+            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <Bot size={16} className="text-primary" />
             </div>
-            <div className="bg-white px-6 py-4 rounded-2xl shadow-md">
-              <div className="flex gap-2 items-center">
-                <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
-                <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-                <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></div>
-                <span className="ml-2 text-sm text-textmain/70">AI is thinking...</span>
+            <div className="bg-gray-100 px-4 py-3 rounded-2xl rounded-bl-md">
+              <div className="flex gap-1.5 items-center">
+                <span className="w-2 h-2 bg-primary/60 rounded-full animate-bounce" />
+                <span className="w-2 h-2 bg-primary/60 rounded-full animate-bounce" style={{animationDelay: '0.15s'}} />
+                <span className="w-2 h-2 bg-primary/60 rounded-full animate-bounce" style={{animationDelay: '0.3s'}} />
               </div>
             </div>
           </div>
         )}
 
-        {/* Empty space for next conversation */}
-        <div className="h-48 flex-shrink-0" aria-hidden="true" />
+        <div className="h-24" aria-hidden="true" />
         <div ref={messagesEndRef} />
+        </div>
       </div>
 
-      {/* Input Area */}
-      <div className="bg-white border-t border-secondary px-4 py-4 shadow-sm">
-        <form onSubmit={handleSendMessage} className="max-w-4xl mx-auto">
-          <div className="flex gap-3">
+      {/* Input Area - search-bar style */}
+      <div className="bg-white border-t border-gray-100 px-6 py-4">
+        <form onSubmit={handleSendMessage} className="max-w-3xl mx-auto">
+          <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-4 py-2 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10 transition-all">
             <input
               type="text"
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
-              placeholder="Ask me anything about your health..."
+              placeholder="Ask anything about medications, appointments, or wellness..."
               disabled={isLoading}
-              className="flex-1 px-5 py-3 text-base border-2 border-secondary rounded-xl focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:bg-secondary/30 transition-colors"
+              className="flex-1 bg-transparent py-2.5 text-[15px] text-gray-900 placeholder-gray-400 focus:outline-none disabled:opacity-60"
             />
             <button
               type="submit"
               disabled={isLoading || !inputMessage.trim()}
-              className="bg-primary text-surface px-6 py-3 rounded-xl font-semibold hover:bg-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-md hover:shadow-lg"
+              className="p-2.5 rounded-lg bg-primary text-white hover:bg-primary/90 disabled:opacity-40 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed transition-colors"
             >
-              <Send size={24} />
-              Send
+              <Send size={20} strokeWidth={2.5} />
             </button>
           </div>
-          <p className="text-xs text-textmain/60 mt-2 text-center">
-            💡 Tip: Ask about medications, appointments, exercises, or general health questions
-          </p>
         </form>
       </div>
     </div>
